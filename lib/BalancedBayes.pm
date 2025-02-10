@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package BalancedBayes;
+package BalancedBayes 0.001;
 
 use strict;
 use warnings;

@@ -1,6 +1,6 @@
 #!/usr/bin/perl
 
-package BalancedBayes::Language;
+package BalancedBayes::Language 0.001;
 
 use Exporter qw<import>;
 my @EXPORT_OK = qw( detect );
