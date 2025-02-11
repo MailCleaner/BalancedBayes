@@ -5,5 +5,5 @@ use warnings;
 
 use BalancedBayes;
 
-my $bb = BalancedBayes->new( ( 'rootdir' => '~/bb' ) );
+my $bb = BalancedBayes->new( );
 $bb->queue_report;

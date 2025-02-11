@@ -13,18 +13,48 @@ sub new {
 	my $class = shift || "BalancedBayes";
 	my %args = @_;
 	my $this = {
-		'rootdir' => '/var/mailcleaner/BalancedBayes',
-		'sender' => 'root@gate-pp1.mailcleaner.net',
-		'recipient' => 'support@mailcleaner.net',
-		'smtp_server' => 'localhost:2525',
+		'vendor' => $args{vendor} || "Stub"
 	};
+	delete($args{vendor}) if defined($args{vendor});
+	bless($this, $class);
+	$this->load_vendor($this->{vendor});
 	foreach my $key (keys(%args)) {
-		print "Overwriting $key = $args{$key}\n";
-		$this->{$key} = $args{$key};
+		$this->{vendor}->{$key} = $args{$key};
 	}
-	$this->{rootdir} =~ s|/$||;
-	check_dir($class, $this->{rootdir});
-	return bless $this, $class;
+	$this->{vendor}->{rootdir} =~ s|/$||;
+	check_dir($class, $this->{vendor}->{rootdir});
+	return $this;
+}
+
+sub load_vendor {
+	my ($this, $vendor) = @_;
+	my $pkg = "BalancedBayes::Vendor::$vendor";
+	eval "use $pkg";
+	if ($@) {
+		die("Unable to load Vendor package BalancedBayes::Vendor::$vendor : $@");
+	}
+	$this->{vendor} = $pkg->new($this);
+	$this->{vendor}->defaults();
+}
+
+sub rootdir {
+	my ($this, @args) = @_;
+	return $this->{vendor}->rootdir(@args);
+}
+
+sub recipient {
+	my ($this, @args) = @_;
+	return $this->{vendor}->recipient(@args);
+}
+
+sub sender {
+	my ($this, @args) = @_;
+	return $this->{vendor}->sender(@args);
+}
+
+sub smtp_server {
+	my ($this, @args) = @_;
+	return $this->{vendor}->smtp_server(@args);
 }
 
 sub load_message {
