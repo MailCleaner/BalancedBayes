@@ -9,3 +9,36 @@ The Module `BalancedBayes::Vendor::MailCleaner` is bespoke to MailCleaner and wi
 `bin/feed_bayes.pl` - Use this script to add a given message to the appropriate queue directory.
 
 `bin/process_bayes.pl` - Use this script to check for trainable items in any of the queues.
+
+## Installation
+
+Clone the repository:
+
+```bash
+git clone https://github.com/MailCleaner/BalancedBayes
+cd BalancedBayes
+```
+
+Generate the makefile:
+
+```bash
+perl Makefile.PL
+```
+
+Install dependencies:
+
+```bash
+cpanm --installdeps .
+```
+
+Build:
+
+```
+make
+```
+
+Install:
+
+```
+sudo make install
+```
