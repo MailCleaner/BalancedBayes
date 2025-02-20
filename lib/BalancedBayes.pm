@@ -159,9 +159,44 @@ Accepts a path to an email file and loads it in as the working message.
 
 sub load_message {
 	my $this = shift;
-	my $raw = shift;
+	my $file = shift || die "No file provided\n";
+	my @contains = ();
 
-	$this->{msg} = $raw;
+	my $eml;
+    	if (!open($eml, '<', $file) ) {
+        	return 0;
+    	}
+
+	my $last = '';
+	$this->{msg}->{headers} = {};
+	while (my $line = <$eml>) {
+			last if ($line) =~ m/^\s*$/;
+			chomp($line);
+			if (my ($key, $value) = $line =~ m/^(\S+): (\S.*)$/) {
+				$last = $key;
+				if ($key eq 'Received') {
+					if (defined($this->{msg}->{headers}->{$key})) {
+						push(@{$this->{msg}->{headers}->{$key}}, $value);
+					} else {
+						$this->{msg}->{headers}->{$key} = [ $value ];
+					}
+				} else {
+					$this->{msg}->{headers}->{$key} = $value;
+				}
+			} elsif ($last eq 'Received') {
+				$this->{msg}->{headers}->{$last}->[scalar(@{$this->{msg}->{headers}->{$last}})-1] .= "\n$line";
+			} else {
+				$this->{msg}->{headers}->{$last} .= "\n$line";
+			}
+			chomp($this->{msg}->{headers}->{$last});
+	}
+	$this->{msg}->{body} = [];
+	while (my $line = <$eml>) {
+		chomp($line);
+		push(@{$this->{msg}->{body}}, $line);
+	}
+	close($eml);
+        return 1;
 }
 
 =head2 validate_vendor
@@ -180,24 +215,7 @@ sub validate_vendor {
 	my $this = shift;
 	my $raw = shift;
 	$this->load_message($raw) if (defined($raw));
-	return $this->{vendor}->validate_vendor();
-}
-
-=head2 validate_ham
-
-Request passed to Vendor method. Returns true/false for whether the message was previously detected
-as spam by the vendor.
-
-This should be used after C<validate_vendor> has been confirmed and is only necessary for corrective
-training.
-
-=cut
-
-sub validate_ham {
-	my $this = shift;
-	my $raw = shift;
-	$this->load_message($raw) if (defined($raw));
-	return $this->{vendor}->validate_spam();
+	return $this->{vendor}->validate_vendor($this->{msg});
 }
 
 =head2 validate_spam
@@ -214,7 +232,7 @@ sub validate_spam {
 	my $this = shift;
 	my $raw = shift;
 	$this->load_message($raw) if (defined($raw));
-	return $this->{vendor}->validate_spam();
+	return $this->{vendor}->validate_spam($this->{msg});
 }
 
 =head2 false_negative

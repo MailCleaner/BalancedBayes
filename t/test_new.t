@@ -23,3 +23,5 @@ ok((-d $bb->{vendor}->{rootdir}), "MailCleaner rootdir created");
 is($bb->rootdir(), '/var/MailCleaner/BalancedBayes', "MailCleaner Getter");
 is($bb->rootdir('/tmp/BalancedBayes'), '/tmp/BalancedBayes', "MailCleaner Setter");
 is($bb->rootdir(), '/tmp/BalancedBayes', "MailCleaner rootdir persits after Setter");
+
+done_testing();

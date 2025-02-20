@@ -18,3 +18,4 @@ foreach my $code (keys(%langs)) {
 	is($found, $code, "$langs{$code} == $code (found $found)");
 }
 
+done_testing();

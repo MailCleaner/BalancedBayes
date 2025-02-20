@@ -60,24 +60,12 @@ Verify that the working message was previously scanned by MailCleaner.
 
 sub validate_vendor {
 	my $this = shift;
-	#TODO find X-MailCleaner header
+	my $msg = shift;
+	return 1 if (defined($msg->{headers}->{'X-MailCleaner'}));
 	return 0;
-	return 1;
 }
 
-=head2 validate_ham
-
-Verify that the working message was actually detected as a ham previously by MailCleaner.
-
-=cut
-
-sub validate_ham {
-	my $this = shift;
-	return 0 if ($this->detect_nicebayes || $this->detect_bogospam);
-	return 1;
-}
-
-=head2 validate_ham
+=head2 validate_spam
 
 Verify that the working message was actually detected as a spam previously by MailCleaner.
 
@@ -85,7 +73,8 @@ Verify that the working message was actually detected as a spam previously by Ma
 
 sub validate_spam {
 	my $this = shift;
-	return 1 if ($this->detect_nicebayes || $this->detect_bogospam);
+	my $msg = shift;
+	return 1 if ($this->detect_nicebayes($msg) || $this->detect_bogospam($msg));
 	return 0;
 }
 
@@ -97,9 +86,13 @@ Verify that the working message was actually detected as a spam by NiceBayes.
 
 sub detect_nicebayes {
 	my $this = shift;
-	my $raw = shift;
-	#TODO find NiceBayes result in X-SpamCheck header
-	$this->load_message($raw) if (defined($raw));
+	my $msg = shift;
+	return 0 unless defined($msg->{headers}->{'X-MailCleaner-SpamCheck'});
+	my $spamcheck = $msg->{'headers'}->{'X-MailCleaner-SpamCheck'};
+	$spamcheck =~ s/\n//g;
+	$spamcheck =~ s/\s\s+/ /g;
+	return 0 unless $spamcheck =~ m/NiceBayes \([^\)]+, spam decisive/g;
+	return 1;
 }
 
 =head2 detect_bogospam
@@ -110,9 +103,13 @@ Verify that the working message was actually detected as a spam by Bogospam.
 
 sub detect_bogospam {
 	my $this = shift;
-	my $raw = shift;
-	#TODO find BAYES_* rules in SpamC results in X-SpamCheck header
-	$this->load_message($raw) if (defined($raw));
+	my $msg = shift;
+	return 0 unless defined($msg->{headers}->{'X-MailCleaner-SpamCheck'});
+	my $spamcheck = $msg->{'headers'}->{'X-MailCleaner-SpamCheck'};
+	$spamcheck =~ s/\n//g;
+	$spamcheck =~ s/\s\s+/ /g;
+	return 0 unless $spamcheck =~ m/Spamc \([^\)]*BAYES_[5-9][0-9]/;
+	return 1;
 }
 
 1;
