@@ -6,9 +6,13 @@ The Module `BalancedBayes::Vendor::MailCleaner` is bespoke to MailCleaner and wi
 
 ## Usage
 
+The BalancedBayes::Vendor::Stub module is provided to make it easy to implement for other vendors, but in order for the executabales to actually be usable they specifically use the BalancedBayes::Vendor::MailCleaner module. Modify or take inspiration from these as you see fit.
+
 `bin/feed_bayes.pl` - Use this script to add a given message to the appropriate queue directory.
 
 `bin/process_bayes.pl` - Use this script to check for trainable items in any of the queues.
+
+`bin/bayes_report.pl` - Use this to generate a report of the number of items queued, the number already trained, any deficit from one type to the others and the number which are trainable. With an email address, it will mail the report.
 
 ## Installation
 
@@ -33,12 +37,12 @@ cpanm --installdeps .
 
 Build:
 
-```
+```bash
 make
 ```
 
 Install:
 
-```
+```bash
 sudo make install
 ```

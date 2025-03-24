@@ -20,7 +20,7 @@ detect_language - Expects a text string and optional confidence requirement. Wil
 =cut 
 
 use Exporter qw<import>;
-my @EXPORT = qw( detect_language );
+our @EXPORT = qw( detect_language );
 
 =head1 SYNOPSIS
 
@@ -62,7 +62,7 @@ sub detect_language {
 	my $confidence = shift || 0.6;
 	$text = _clean_text($text);
 	my $res = detect_text_language(text => $text);
-	return undef unless ($res->[1] == 'OK');
+	return undef unless ($res->[1] eq 'OK');
 	return undef if ($res->[2]->{lang_code} eq 'un');
 	# The identifier CLD seems to default to thinking that everything is English, with low
 	# confidence when it is gibberish. Raise the threshold for 'en'.
